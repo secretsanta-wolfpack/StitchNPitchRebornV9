@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Trophy, Calendar, User, Building, UserCheck, Trash2, AlertTriangle, X, Filter, Users, Star, MessageCircle, Eye, EyeOff, Crown, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Winner, EliteSpiral, DEPARTMENTS } from '../config/data';
+import ConfettiAnimation from './ConfettiAnimation';
 
 interface WinnerHistoryProps {
   winners: Winner[];
@@ -89,6 +90,7 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, eliteWinners, on
   const [selectedDepartment, setSelectedDepartment] = useState<string>('All');
   const [showEliteWinners, setShowEliteWinners] = useState(false);
   const [expandedWinner, setExpandedWinner] = useState<string | null>(null);
+  const [showConfetti, setShowConfetti] = useState(true);
   const [deleteModalState, setDeleteModalState] = useState<{
     isOpen: boolean;
     winnerId: string | null;
@@ -150,6 +152,13 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, eliteWinners, on
 
   // Get current data based on toggle
   const currentData = showEliteWinners ? eliteWinners : winners;
+
+  // Keep confetti active when there are winners
+  React.useEffect(() => {
+    if (currentData.length > 0) {
+      setShowConfetti(true);
+    }
+  }, [currentData.length]);
 
   // Filter winners based on selected department
   const filteredData = selectedDepartment === 'All' 
@@ -451,6 +460,9 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, eliteWinners, on
             ))}
           </div>
         )}
+
+        {/* Continuous Confetti Animation */}
+        <ConfettiAnimation isActive={showConfetti && currentData.length > 0} />
 
         <DeleteModal
           isOpen={deleteModalState.isOpen}

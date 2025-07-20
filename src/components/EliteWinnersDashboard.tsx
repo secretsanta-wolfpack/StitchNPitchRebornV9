@@ -44,11 +44,19 @@ const EliteWinnersDashboard: React.FC<EliteWinnersDashboardProps> = ({ isOpen, o
     }
   }, [isOpen]);
 
+  // Keep confetti continuously active when modal is open
   useEffect(() => {
-    if (!isOpen) {
-      setShowConfetti(false);
-    } else {
+    if (isOpen) {
       setShowConfetti(true);
+      // Keep confetti running continuously
+      const confettiInterval = setInterval(() => {
+        setShowConfetti(false);
+        setTimeout(() => setShowConfetti(true), 100);
+      }, 8000); // Restart confetti every 8 seconds
+      
+      return () => clearInterval(confettiInterval);
+    } else {
+      setShowConfetti(false);
     }
   }, [isOpen]);
 
