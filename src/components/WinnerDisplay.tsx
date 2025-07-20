@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trophy, Star, X, Sparkles } from 'lucide-react';
 import { Winner } from '../config/data';
+import ConfettiAnimation from './ConfettiAnimation';
 
 interface WinnerDisplayProps {
   winner: Winner;
@@ -8,6 +9,20 @@ interface WinnerDisplayProps {
 }
 
 const WinnerDisplay: React.FC<WinnerDisplayProps> = ({ winner, onBack }) => {
+  const [showConfetti, setShowConfetti] = React.useState(true);
+
+  // Keep confetti continuously active
+  React.useEffect(() => {
+    setShowConfetti(true);
+    // Keep confetti running continuously
+    const confettiInterval = setInterval(() => {
+      setShowConfetti(false);
+      setTimeout(() => setShowConfetti(true), 100);
+    }, 8000); // Restart confetti every 8 seconds
+    
+    return () => clearInterval(confettiInterval);
+  }, []);
+
   const handleModalClick = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
@@ -180,6 +195,9 @@ const WinnerDisplay: React.FC<WinnerDisplayProps> = ({ winner, onBack }) => {
           </button>
         </div>
       </div>
+      
+      {/* Continuous Confetti Animation */}
+      <ConfettiAnimation isActive={showConfetti} />
     </>
   );
 };

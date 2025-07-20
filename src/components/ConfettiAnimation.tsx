@@ -7,15 +7,15 @@ interface ConfettiAnimationProps {
 const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ isActive }) => {
   if (!isActive) return null;
 
-  // Generate confetti pieces
-  const confettiPieces = Array.from({ length: 60 }, (_, i) => (
+  // Generate more confetti pieces for better effect
+  const confettiPieces = Array.from({ length: 80 }, (_, i) => (
     <div
       key={i}
       className={`confetti-piece confetti-piece-${i % 6}`}
       style={{
         left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 3}s`,
-        animationDuration: `${3 + Math.random() * 2}s`
+        animationDelay: `${Math.random() * 5}s`,
+        animationDuration: `${4 + Math.random() * 3}s`
       }}
     />
   ));
@@ -26,11 +26,11 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ isActive }) => {
         {`
           .confetti-piece {
             position: fixed;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             top: -20px;
             z-index: 9999;
-            animation: confetti-fall linear infinite;
+            animation: confetti-fall ease-out infinite;
             will-change: transform;
           }
           
@@ -61,12 +61,18 @@ const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ isActive }) => {
           
           @keyframes confetti-fall {
             0% {
-              transform: translateY(-20px) rotate(0deg);
+              transform: translateY(-30px) rotate(0deg);
               opacity: 1;
             }
-            100% {
-              transform: translateY(100vh) rotate(720deg);
+            10% {
+              opacity: 1;
+            }
+            90% {
               opacity: 0.8;
+            }
+            100% {
+              transform: translateY(calc(100vh + 50px)) rotate(720deg);
+              opacity: 0;
             }
           }
           
