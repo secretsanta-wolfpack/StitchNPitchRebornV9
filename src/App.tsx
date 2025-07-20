@@ -10,10 +10,11 @@ import WinHistoryDashboard from './components/WinHistoryDashboard';
 import EliteWinnersDashboard from './components/EliteWinnersDashboard';
 import ExportData from './components/ExportData';
 import BackupRestore from './components/BackupRestore';
-import ConfettiAnimation from './components/ConfettiAnimation';
 import FailAnimation from './components/FailAnimation';
 import DynamicOrbs from './components/DynamicOrbs';
 import Navigation from './components/Navigation';
+import Footer from './components/Footer';
+import ConfettiAnimation from './components/ConfettiAnimation';
 import { Guide, Winner, Loser, EliteSpiral } from './config/data';
 
 import './styles/responsive.css';
@@ -52,7 +53,6 @@ function App() {
   const [losers, setLosers] = useState<Loser[]>([]);
   const [eliteWinners, setEliteWinners] = useState<EliteSpiral[]>([]);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
   const [showFailAnimation, setShowFailAnimation] = useState(false);
   const [failedGuideName, setFailedGuideName] = useState('');
   const [loading, setLoading] = useState(true);
@@ -1358,7 +1358,6 @@ function App() {
       // Save to database
       await saveWinnerToDatabase(winner);
       setCurrentWinner(winner);
-      setShowConfetti(true);
       
       // Winner display and confetti will stay until manually closed
     } else if (action === 'fail' && selectedGuide) {
@@ -1388,7 +1387,6 @@ function App() {
   };
 
   const handleCloseWinner = () => {
-    setShowConfetti(false);
     setCurrentWinner(null);
   };
 
@@ -1424,6 +1422,12 @@ function App() {
     <div className={`min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 relative overflow-hidden ${isMobile ? 'mobile-layout' : ''}`}>
       {/* Dynamic Orbs Background */}
       <DynamicOrbs />
+      
+      {/* Global Confetti - Active when there are any winners */}
+      <ConfettiAnimation 
+        isActive={winners.length > 0 || eliteWinners.length > 0} 
+        intensity="light" 
+      />
 
       {/* Navigation */}
       <Navigation
@@ -1515,9 +1519,6 @@ function App() {
         isLoggedIn={isLoggedIn}
       />
 
-      {/* Confetti Animation */}
-      <ConfettiAnimation isActive={showConfetti} />
-
       {/* Fail Animation */}
       <FailAnimation 
         isActive={showFailAnimation} 
@@ -1525,6 +1526,9 @@ function App() {
         onClose={handleCloseFail}
         isElite={false}
       />
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
