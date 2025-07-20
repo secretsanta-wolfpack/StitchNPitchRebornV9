@@ -32,10 +32,13 @@ const EliteSpiralPanel: React.FC<EliteSpiralPanelProps> = ({ winners, eliteWinne
 
   useEffect(() => {
     // Filter winners based on selected department
+    // Only include winners with valid IDs to prevent foreign key constraint violations
+    const winnersWithValidIds = winners.filter(winner => winner.id && winner.id.trim() !== '');
+    
     if (selectedDepartment === 'All') {
-      setFilteredWinners(winners);
+      setFilteredWinners(winnersWithValidIds);
     } else {
-      setFilteredWinners(winners.filter(winner => winner.department === selectedDepartment));
+      setFilteredWinners(winnersWithValidIds.filter(winner => winner.department === selectedDepartment));
     }
   }, [selectedDepartment, winners]);
 
