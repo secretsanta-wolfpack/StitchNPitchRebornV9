@@ -1,94 +1,151 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface ConfettiAnimationProps {
   isActive: boolean;
+  intensity?: 'light' | 'medium' | 'heavy';
 }
 
-const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ isActive }) => {
-  if (!isActive) return null;
+interface ConfettiPiece {
+  id: number;
+  x: number;
+  color: string;
+  size: number;
+  delay: number;
+  duration: number;
+  shape: 'circle' | 'square' | 'triangle';
+}
 
-  // Generate more confetti pieces for better effect
-  const confettiPieces = Array.from({ length: 80 }, (_, i) => (
-    <div
-      key={i}
-      className={`confetti-piece confetti-piece-${i % 6}`}
-      style={{
-        left: `${Math.random() * 100}%`,
-        animationDelay: `${Math.random() * 5}s`,
-        animationDuration: `${4 + Math.random() * 3}s`
-      }}
-    />
-  ));
+const ConfettiAnimation: React.FC<ConfettiAnimationProps> = ({ 
+  isActive, 
+  intensity = 'medium' 
+}) => {
+  const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([]);
+
+  const colors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+    '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#D7BDE2'
+  ];
+
+  const intensityConfig = {
+    light: { count: 30, interval: 2000 },
+    medium: { count: 50, interval: 1500 },
+    heavy: { count: 80, interval: 1000 }
+  };
+
+  const generateConfetti = () => {
+    const config = intensityConfig[intensity];
+    const pieces: ConfettiPiece[] = [];
+    
+    for (let i = 0; i < config.count; i++) {
+      pieces.push({
+        id: Math.random() * 10000,
+        x: Math.random() * 100,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: Math.random() * 8 + 4, // 4-12px
+        delay: Math.random() * 3,
+        duration: Math.random() * 3 + 3, // 3-6 seconds
+        shape: ['circle', 'square', 'triangle'][Math.floor(Math.random() * 3)] as 'circle' | 'square' | 'triangle'
+      });
+    }
+    
+    setConfettiPieces(pieces);
+  };
+
+  useEffect(() => {
+    if (!isActive) {
+      setConfettiPieces([]);
+      return;
+    }
+
+    // Generate initial confetti
+    generateConfetti();
+
+    // Continuously generate new confetti
+    const interval = setInterval(() => {
+      if (isActive) {
+        generateConfetti();
+      }
+    }, intensityConfig[intensity].interval);
+
+    return () => clearInterval(interval);
+  }, [isActive, intensity]);
+
+  if (!isActive || confettiPieces.length === 0) return null;
 
   return (
     <>
       <style>
         {`
-          .confetti-piece {
+          .confetti-container {
             position: fixed;
-            width: 10px;
-            height: 10px;
-            top: -20px;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
             z-index: 9999;
-            animation: confetti-fall ease-out infinite;
+            overflow: hidden;
+          }
+          
+          .confetti-piece {
+            position: absolute;
+            top: -20px;
+            animation: confetti-fall linear infinite;
             will-change: transform;
           }
           
-          .confetti-piece-0 { 
-            background: #f97316; 
+          .confetti-circle {
             border-radius: 50%;
           }
-          .confetti-piece-1 { 
-            background: #10b981; 
+          
+          .confetti-square {
             border-radius: 0;
           }
-          .confetti-piece-2 { 
-            background: #ec4899; 
-            border-radius: 50%;
-          }
-          .confetti-piece-3 { 
-            background: #3b82f6; 
-            border-radius: 0;
-          }
-          .confetti-piece-4 { 
-            background: #f59e0b; 
-            border-radius: 50%;
-          }
-          .confetti-piece-5 { 
-            background: #8b5cf6; 
-            border-radius: 0;
+          
+          .confetti-triangle {
+            width: 0 !important;
+            height: 0 !important;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 10px solid;
           }
           
           @keyframes confetti-fall {
             0% {
-              transform: translateY(-30px) rotate(0deg);
+              transform: translateY(-20px) rotate(0deg);
               opacity: 1;
             }
             10% {
               opacity: 1;
             }
             90% {
-              opacity: 0.8;
+              opacity: 0.7;
             }
             100% {
               transform: translateY(calc(100vh + 50px)) rotate(720deg);
               opacity: 0;
             }
           }
-          
-          .bounce-in {
-            animation: bounce-in 0.6s ease-out;
-          }
-          
-          @keyframes bounce-in {
-            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
-            50% { transform: scale(1.2) rotate(-90deg); opacity: 1; }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-          }
         `}
       </style>
-      <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
-        {confettiPieces}
+      
+      <div className="confetti-container">
+        {confettiPieces.map((piece) => (
+          <div
+            key={piece.id}
+            className={`confetti-piece confetti-${piece.shape}`}
+            style={{
+              left: `${piece.x}%`,
+              width: piece.shape === 'triangle' ? '0' : `${piece.size}px`,
+              height: piece.shape === 'triangle' ? '0' : `${piece.size}px`,
+              backgroundColor: piece.shape === 'triangle' ? 'transparent' : piece.color,
+              borderBottomColor: piece.shape === 'triangle' ? piece.color : 'transparent',
+              animationDelay: `${piece.delay}s`,
+              animationDuration: `${piece.duration}s`
+            }}
+          />
+        ))}
       </div>
     </>
   );

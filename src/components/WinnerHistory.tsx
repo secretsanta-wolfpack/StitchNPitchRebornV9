@@ -90,7 +90,7 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, eliteWinners, on
   const [selectedDepartment, setSelectedDepartment] = useState<string>('All');
   const [showEliteWinners, setShowEliteWinners] = useState(false);
   const [expandedWinner, setExpandedWinner] = useState<string | null>(null);
-  const [showConfetti, setShowConfetti] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [deleteModalState, setDeleteModalState] = useState<{
     isOpen: boolean;
     winnerId: string | null;
@@ -153,10 +153,12 @@ const WinnerHistory: React.FC<WinnerHistoryProps> = ({ winners, eliteWinners, on
   // Get current data based on toggle
   const currentData = showEliteWinners ? eliteWinners : winners;
 
-  // Keep confetti active when there are winners
+  // Activate confetti when there are winners
   React.useEffect(() => {
     if (currentData.length > 0) {
       setShowConfetti(true);
+    } else {
+      setShowConfetti(false);
     }
   }, [currentData.length]);
 

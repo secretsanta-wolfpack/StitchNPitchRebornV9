@@ -25,7 +25,7 @@ interface TimelineData {
 
 const EliteWinnersDashboard: React.FC<EliteWinnersDashboardProps> = ({ isOpen, onClose, eliteWinners }) => {
   const [activeChart, setActiveChart] = useState<'bar' | 'pie' | 'timeline'>('bar');
-  const [showConfetti, setShowConfetti] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [animationPhase, setAnimationPhase] = useState(0);
 
   useEffect(() => {
@@ -41,33 +41,10 @@ const EliteWinnersDashboard: React.FC<EliteWinnersDashboardProps> = ({ isOpen, o
         clearTimeout(timer2);
         clearTimeout(timer3);
       };
-    }
-  }, [isOpen]);
-
-  // Keep confetti continuously active when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      setShowConfetti(true);
-      // Keep confetti running continuously
-      const confettiInterval = setInterval(() => {
-        setShowConfetti(false);
-        setTimeout(() => setShowConfetti(true), 100);
-      }, 8000); // Restart confetti every 8 seconds
-      
-      return () => clearInterval(confettiInterval);
     } else {
       setShowConfetti(false);
     }
   }, [isOpen]);
-
-  // Reset animation when eliteWinners change
-  useEffect(() => {
-    if (isOpen) {
-      setAnimationPhase(0);
-      const timer = setTimeout(() => setAnimationPhase(3), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [eliteWinners.length]);
 
   if (!isOpen) return null;
 
